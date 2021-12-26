@@ -45,5 +45,5 @@ Kruskal_cost = cost_link(dist_Mat, kruskal_link);
 depth = 4;
 EW_link_depth = esau_williams(w_ew, dist_Mat, status_Mat, weight_Mat, depth);
 % plot_access(location_Mat, status_Mat, EW_link_depth)
-% plot_all(map_size, location_Mat, status_Mat, EW_link_depth);
-% EW_cost = cost_link(dist_Mat, EW_link);
+plot_all(map_size, location_Mat, status_Mat, EW_link_depth);
+EW_cost_depth = cost_link(dist_Mat, EW_link_depth);

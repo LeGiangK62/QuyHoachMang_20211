@@ -15,7 +15,6 @@ function [status_Mat] = mentor(w_mentor, R, C, weight_Mat, location_Mat)
         if (weight_Mat(i)/C) > w_mentor
             status_Mat(i) = -1;
             backbone = [backbone i]; %#ok<*AGROW>
-            disp(i);
         end
         
     end
@@ -70,13 +69,14 @@ function [status_Mat] = mentor(w_mentor, R, C, weight_Mat, location_Mat)
 
         dc_max = max(uncatergorized(:,2));
         w_max = max(uncatergorized(:,3));
-        uncatergorized(:,4) = 0.5 * ((uncatergorized(:,2) - dc_max)/dc_max) + 0.5 * ((uncatergorized(:,2) - w_max)/w_max);
+        uncatergorized(:,4) = 0.5 * ((uncatergorized(:,2) - dc_max)/dc_max) + 0.5 * ((uncatergorized(:,3))/w_max);
 
 
         [~, new] = max(uncatergorized(:,4));
 
         status_Mat(uncatergorized(new,1)) = -1;
         backbone = [backbone uncatergorized(new,1)];
+        
     end
     
 %     %Plot mau them cho backbone
