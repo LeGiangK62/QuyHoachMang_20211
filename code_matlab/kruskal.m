@@ -9,7 +9,6 @@ function all_link = kruskal(w_ew, link_cost, status_Mat, weight_Mat)
         end
     end
 
-
     for eachBb = 1:length(backbone)
         cur_Bb = backbone(eachBb);
         access = [];
@@ -54,8 +53,7 @@ function all_link = kruskal(w_ew, link_cost, status_Mat, weight_Mat)
         for i = 1:size(link_cost_vec_sort,1)
             cur_des = link_cost_vec_sort(i,2);
             cur_src = link_cost_vec_sort(i,3);
-
-
+            
             %Check loop
             des_check = ismember(cur_des,added_list);
             src_check = ismember(cur_src,added_list);
@@ -74,6 +72,7 @@ function all_link = kruskal(w_ew, link_cost, status_Mat, weight_Mat)
                         end 
                         link_list = [link_list; i];
                         link_to_Bb = [link_to_Bb; branch(cur_src)];
+                       
                     end
                 end
 
@@ -93,11 +92,84 @@ function all_link = kruskal(w_ew, link_cost, status_Mat, weight_Mat)
                 end
                 continue;
             end
-
-            if des_check && src_check
-                 % des_check && src_check == 1 => both are already added => continue
+            
+            if (branch(cur_src) == branch(cur_des)) && branch(cur_src)
+                %2 node cung branch => loop
                 continue;
             end
+            
+            if not(des_check || src_check)
+                %des_check || src_check == 0 => both are new 
+                if (weight_Mat(access(cur_des)) + weight_Mat(access(cur_src))) <= w_ew
+                    
+                    added_list = [added_list; cur_des];
+                    added_list = [added_list; cur_src];
+
+                    branch(cur_des) = cur_des;
+                    branch(cur_src) = cur_des;
+
+                    link_list = [link_list; i];
+                end
+                
+                continue;
+            end
+
+            if (des_check && src_check) 
+                % des_check && src_check == 1 => both are already added
+                if (ismember(branch(cur_src), link_to_Bb) && ismember(branch(cur_des), link_to_Bb))
+                  % both have connect to Bb => continue
+                  continue;
+                      
+                else
+                    if ismember(branch(cur_src), link_to_Bb)
+                        %src da link to Bb => not des vao src, doi branch
+                        %src
+                        cur_node = cur_des;
+                        cur_branch  = branch(cur_src);   
+                        old_branch  = branch(cur_des);
+                    end
+                    
+                    if ismember(branch(cur_des), link_to_Bb)
+                        %src da link to Bb => not des vao src, doi branch
+                        %src
+                        cur_node = cur_src;
+                        cur_branch  = branch(cur_des);  
+                        old_branch  = branch(cur_src);
+                    end
+                    
+                    if not(ismember(branch(cur_src), link_to_Bb) || ismember(branch(cur_des), link_to_Bb))
+                  % both have connect to Bb => continue
+                        cur_node = cur_des;
+                        cur_branch  = branch(cur_src);   
+                        old_branch  = branch(cur_des);
+                    end
+                    
+                    sum_w = 0;
+                    
+                    for j = 1:numAccess
+                       if (branch(j) == cur_branch) || (branch(j) == old_branch)
+                           sum_w = sum_w + weight_Mat(access(j));
+                       end
+                    end
+
+
+                    if sum_w > w_ew
+                       %Khong add duong do
+                        continue;
+                    end
+                    
+                    for cur_node = 1:numAccess
+                        if branch(cur_node) == old_branch
+                           branch(cur_node) = cur_branch; 
+                        end
+                    end
+
+                    %Them link
+                    link_list = [link_list; i];
+                    continue;  
+                end   
+            end
+            
             
             if des_check
                 %des added => adding src
@@ -110,20 +182,7 @@ function all_link = kruskal(w_ew, link_cost, status_Mat, weight_Mat)
             end
 
 
-            if not(des_check || src_check)
-                if (weight_Mat(access(cur_des)) + weight_Mat(access(cur_src))) <= w_ew
-                    %des_check || src_check == 0 => both are new 
-                    added_list = [added_list; cur_des];
-                    added_list = [added_list; cur_src];
-
-                    branch(cur_des) = cur_des;
-                    branch(cur_src) = cur_des;
-
-                    link_list = [link_list; i];
-                end
-                
-                continue;
-            end
+            
             
             %Check trong so
             sum_w = 0;
@@ -135,7 +194,7 @@ function all_link = kruskal(w_ew, link_cost, status_Mat, weight_Mat)
             end
             
 
-            if sum_w >= w_ew
+            if sum_w > w_ew
                %Khong add duong do
                 continue;
             end
@@ -144,8 +203,7 @@ function all_link = kruskal(w_ew, link_cost, status_Mat, weight_Mat)
             %Add vao list
             added_list = [added_list; cur_node];
             branch(cur_node) = cur_branch;
-
-
+            
             %Them link
             link_list = [link_list; i];
 
